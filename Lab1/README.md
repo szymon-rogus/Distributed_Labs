@@ -1,3 +1,4 @@
-multicast still not working :(
+Run Server class and then Clients.
+Type message to broadcast.
+Type U to use UDP transmission.
 
-Full version will be on master branch

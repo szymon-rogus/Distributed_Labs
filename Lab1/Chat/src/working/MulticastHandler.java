@@ -2,11 +2,8 @@ package working;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Map;
 
 import static working.Server.dataMulticast;
 
@@ -38,12 +35,16 @@ public class MulticastHandler implements Runnable {
                     System.out.println(msg + " : " + rcvPacket.getPort() + " : " + rcvPacket.getAddress());
                     byte[] send = msg.getBytes();
 
-                    for(Map.Entry<Integer, InetAddress> entry : dataMulticast.entrySet()) {
-                        if(!(rcvPacket.getPort() == entry.getKey())){
-                            DatagramPacket sendPacket = new DatagramPacket(send, send.length, entry.getValue(), entry.getKey());
-                            socket.send(sendPacket);
-                        }
-                    }
+                    dataMulticast.entrySet().stream()
+                            .filter(entry -> !entry.getKey().equals(rcvPacket.getPort()))
+                            .forEach(entry -> {
+                                DatagramPacket sendPacket = new DatagramPacket(send, send.length, entry.getValue(), entry.getKey());
+                                try {
+                                    socket.send(sendPacket);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            });
                 }
             } catch (IOException e) {
                 e.printStackTrace();

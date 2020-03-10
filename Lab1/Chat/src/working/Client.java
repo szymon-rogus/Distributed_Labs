@@ -1,10 +1,5 @@
 package working;
 
-
-// Java implementation for multithreaded chat client
-// Save file as Client.java
-
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.*;
 import java.util.Arrays;

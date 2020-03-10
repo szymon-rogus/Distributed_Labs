@@ -3,26 +3,29 @@ package working;
 import java.io.*;
 import java.util.*;
 import java.net.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
 
     // Vector to store active clients
-    static Vector<ClientHandler> allClients = new Vector<>();
+    static List<ClientHandler> allClients = Collections.synchronizedList(new ArrayList<>());
 
     // Vector to store data needed for UDP messages
-    static Map<Integer, InetAddress> data = new HashMap<>();
+    static ConcurrentHashMap<Integer, InetAddress> data = new ConcurrentHashMap<>();
 
     // Vector to store data needed for Multicast messages
-    static Map<Integer, InetAddress> dataMulticast = new HashMap<>();
+    static ConcurrentHashMap<Integer, InetAddress> dataMulticast = new ConcurrentHashMap<>();
 
     // counter for clients
     protected static int clientID = 1;
 
     public static void main(String[] args) throws IOException {
+
         // Some necessary sockets
         ServerSocket serverSocket = new ServerSocket(8000);
         DatagramSocket udpSocket = new DatagramSocket(8000);
         MulticastSocket multicastSocket = new MulticastSocket(8008);
+        multicastSocket.setTimeToLive(0);
         Socket clientSocket;
 
         InetAddress group = null;
@@ -39,7 +42,6 @@ public class Server {
         udpThread.start();
 
         // Multicast handler:
-
         MulticastHandler multicastHandler = new MulticastHandler(multicastSocket);
         Thread multicastThread = new Thread(multicastHandler);
         multicastThread.start();
@@ -69,7 +71,7 @@ public class Server {
                 // add this client to active clients list
                 allClients.add(clientHandler);
 
-                // start the thread.
+                // start the threaintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                 clientThread.start();
 
                 // just for naming next possible client

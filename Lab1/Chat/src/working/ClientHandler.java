@@ -3,10 +3,8 @@ package working;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.DatagramSocket;
-import java.net.Socket;
-import java.util.Scanner;
-import java.util.StringTokenizer;
+
+import static working.Server.allClients;
 
 // ClientHandler class
 // Controll all active clients and streams between them
@@ -39,11 +37,14 @@ public class ClientHandler implements Runnable
                 System.out.println(this.name + " : " + received);
 
                 // send the message for all other active clients
-                for (ClientHandler client : Server.allClients) {
 
-                    if(!this.name.equals(client.name))
-                        client.out.println(this.name + " : " + received);
-                }
+                String finalReceived = received;
+                allClients.stream()
+                        .filter(element -> !this.name.equals(element.getName()))
+                        .forEach(element -> {
+                            element.out.println(this.name + " : " + finalReceived);
+                        });
+
             } catch (IOException e) {
 
                 e.printStackTrace();
