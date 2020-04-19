@@ -46,6 +46,26 @@ public class Agency2 {
         order_return_2.queueDeclare(ORDER_RETURN_2, false, false, false, null);
         order_return_2.queueBind(ORDER_RETURN_2, "Main", "second");
 
+        // channel for admin
+        Channel communication = connection.createChannel();
+        communication.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
+        String COMMUNICATION_QUEUE = communication.queueDeclare().getQueue();
+        communication.queueBind(COMMUNICATION_QUEUE, "Main", "agency.#");
+
+        Consumer admin_consumer = new DefaultConsumer(communication) {
+
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                String message = new String (body, StandardCharsets.UTF_8);
+
+                System.out.println(message);
+
+                communication.basicAck(envelope.getDeliveryTag(), false);
+            }
+        };
+
+        communication.basicConsume(COMMUNICATION_QUEUE, false, admin_consumer);
+
         BufferedReader br = new BufferedReader(new
                 InputStreamReader(System.in));
 

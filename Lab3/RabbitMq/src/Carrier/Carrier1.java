@@ -45,11 +45,37 @@ public class Carrier1 {
         order_return_2.queueDeclare(ORDER_RETURN_2, false, false, false, null);
         order_return_2.queueBind(ORDER_RETURN_2, "Main", "second");
 
+        // channel for admin
+        Channel communication = connection.createChannel();
+        communication.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
+        String COMMUNICATION_QUEUE = communication.queueDeclare().getQueue();
+        communication.queueBind(COMMUNICATION_QUEUE, "Main", "#.carrier");
+
+        Consumer admin_consumer = new DefaultConsumer(communication) {
+
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                String message = new String (body, StandardCharsets.UTF_8);
+
+                System.out.println(message);
+
+                communication.basicAck(envelope.getDeliveryTag(), false);
+            }
+        };
+
+        communication.basicConsume(COMMUNICATION_QUEUE, false, admin_consumer);
+
         Consumer consumer_people = new DefaultConsumer(channel_people) {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 String message = new String(body, StandardCharsets.UTF_8);
                 System.out.println("Received: " + message);
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
                 String routing_key = message.substring(6, 7);
                 String msg_return = message.substring(9) + " : DONE";
@@ -71,6 +97,12 @@ public class Carrier1 {
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 String message = new String(body, StandardCharsets.UTF_8);
                 System.out.println("Received: " + message);
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
                 String routing_key = message.substring(6, 7);
                 String msg_return = message.substring(9) + " : DONE";
