@@ -20,23 +20,12 @@ public class Agency2 {
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
 
-        Channel channel_people = connection.createChannel();
-        channel_people.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
-        Channel channel_equip = connection.createChannel();
-        channel_equip.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
-        Channel channel_space = connection.createChannel();
-        channel_space.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
+        Channel channel = connection.createChannel();
+        channel.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
 
-        String PEOPLE_QUEUE = "people_queue";
-        String EQUIP_QUEUE = "equip_queue";
-        String SPACE_QUEUE = "space_queue";
+        String QUEUE = "queue";
 
-        channel_people.queueDeclare(PEOPLE_QUEUE, false, false, false, null);
-        channel_people.queueBind(PEOPLE_QUEUE, "Main", "people_queue");
-        channel_equip.queueDeclare(EQUIP_QUEUE, false, false, false, null);
-        channel_equip.queueBind(EQUIP_QUEUE, "Main", "equip_queue");
-        channel_space.queueDeclare(SPACE_QUEUE, false, false, false, null);
-        channel_space.queueBind(SPACE_QUEUE, "Main", "space_queue");
+        channel.queueDeclare(QUEUE, false, false, false, null);
 
         // channel for order return ack
         Channel order_return_2 = connection.createChannel();
@@ -93,17 +82,17 @@ public class Agency2 {
             }
             else
             if(msg.equals("people")){
-                channel_people.basicPublish("Main", PEOPLE_QUEUE, null ,message.getBytes());
+                channel.basicPublish("Main", "people", null ,message.getBytes());
                 System.out.println("Sending task to carriers!");
             }
             else
             if(msg.equals("equip")){
-                channel_equip.basicPublish("Main", EQUIP_QUEUE, null, message.getBytes());
+                channel.basicPublish("Main", "equip", null, message.getBytes());
                 System.out.println("Sending task to carriers!");
             }
             else
             if(msg.equals("space")){
-                channel_space.basicPublish("Main", SPACE_QUEUE, null, message.getBytes());
+                channel.basicPublish("Main", "space", null, message.getBytes());
                 System.out.println("Sending task to carriers!");
             }
             else {
@@ -111,9 +100,7 @@ public class Agency2 {
             }
         }
 
-        channel_people.close();
-        channel_equip.close();
-        channel_space.close();
+        channel.close();
         connection.close();
     }
 }

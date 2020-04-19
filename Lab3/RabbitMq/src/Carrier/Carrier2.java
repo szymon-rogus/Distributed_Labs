@@ -22,28 +22,18 @@ public class Carrier2 {
         Channel channel_equip = connection.createChannel();
         channel_equip.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
 
-        String SPACE_QUEUE = "space_queue";
-        String EQUIP_QUEUE = "equip_queue";
+        String SPACE_QUEUE = "space";
+        String EQUIP_QUEUE = "equip";
 
         channel_space.queueDeclare(SPACE_QUEUE, false, false, false, null);
-        channel_space.queueBind(SPACE_QUEUE, "Main", "space_queue");
+        channel_space.queueBind(SPACE_QUEUE, "Main", "space");
         channel_equip.queueDeclare(EQUIP_QUEUE, false, false, false, null);
-        channel_equip.queueBind(EQUIP_QUEUE, "Main", "equip_queue");
+        channel_equip.queueBind(EQUIP_QUEUE, "Main", "equip");
 
         // return ack msg channels
-        Channel order_return_1 = connection.createChannel();
-        order_return_1.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
+        Channel order_return = connection.createChannel();
+        order_return.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
 
-        String ORDER_RETURN_1 = "first";
-        order_return_1.queueDeclare(ORDER_RETURN_1, false, false, false, null);
-        order_return_1.queueBind(ORDER_RETURN_1, "Main", "first");
-
-        Channel order_return_2 = connection.createChannel();
-        order_return_2.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
-
-        String ORDER_RETURN_2 = "second";
-        order_return_2.queueDeclare(ORDER_RETURN_2, false, false, false, null);
-        order_return_2.queueBind(ORDER_RETURN_2, "Main", "second");
 
         // channel for admin
         Channel communication = connection.createChannel();
@@ -81,10 +71,10 @@ public class Carrier2 {
                 String msg_return = message.substring(9) + " : DONE";
 
                 if(routing_key.equals("1")) {
-                    order_return_1.basicPublish("Main", ORDER_RETURN_1, null, msg_return.getBytes(StandardCharsets.UTF_8));
+                    order_return.basicPublish("Main", "first", null, msg_return.getBytes(StandardCharsets.UTF_8));
 
                 } else {
-                    order_return_2.basicPublish("Main", ORDER_RETURN_2, null, msg_return.getBytes(StandardCharsets.UTF_8));
+                    order_return.basicPublish("Main", "second", null, msg_return.getBytes(StandardCharsets.UTF_8));
                 }
 
                 channel_space.basicAck(envelope.getDeliveryTag(), false);
@@ -107,10 +97,10 @@ public class Carrier2 {
                 String msg_return = message.substring(9) + " : DONE";
 
                 if(routing_key.equals("1")) {
-                    order_return_1.basicPublish("Main", ORDER_RETURN_1, null, msg_return.getBytes(StandardCharsets.UTF_8));
+                    order_return.basicPublish("Main", "first", null, msg_return.getBytes(StandardCharsets.UTF_8));
 
                 } else {
-                    order_return_2.basicPublish("Main", ORDER_RETURN_2, null, msg_return.getBytes(StandardCharsets.UTF_8));
+                    order_return.basicPublish("Main", "second", null, msg_return.getBytes(StandardCharsets.UTF_8));
 
                 }
 
