@@ -23,10 +23,6 @@ public class Agency2 {
         Channel channel = connection.createChannel();
         channel.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
 
-        String QUEUE = "queue";
-
-        channel.queueDeclare(QUEUE, false, false, false, null);
-
         // channel for order return ack
         Channel order_return_2 = connection.createChannel();
         order_return_2.exchangeDeclare("Main", BuiltinExchangeType.TOPIC);
@@ -55,9 +51,6 @@ public class Agency2 {
 
         communication.basicConsume(COMMUNICATION_QUEUE, false, admin_consumer);
 
-        BufferedReader br = new BufferedReader(new
-                InputStreamReader(System.in));
-
         Consumer order_return_consumer = new DefaultConsumer(order_return_2) {
 
             @Override
@@ -71,6 +64,9 @@ public class Agency2 {
         };
 
         order_return_2.basicConsume(ORDER_RETURN_2, false, order_return_consumer);
+
+        BufferedReader br = new BufferedReader(new
+                InputStreamReader(System.in));
 
         while (true) {
             String msg = br.readLine();
