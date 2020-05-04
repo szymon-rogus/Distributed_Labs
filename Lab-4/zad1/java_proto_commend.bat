@@ -1,0 +1,1 @@
+protoc -I=. --java_out=generated_java proto/events.proto
