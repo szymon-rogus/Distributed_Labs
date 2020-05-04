@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "events";
+option java_outer_classname = "EventsProto";
+
+package events;
+
+enum Type {
+  TIME = 0;
+  DEVICE = 1;
+}
+
+message Data {
+  Type type = 1;
+
+  int32 hour = 2;
+  int32 minute = 3;
+  int32 second = 4;
+
+  string name = 5;
+  repeated string years = 6;
+}
+
+message TypeArg {
+  Type eventType = 1;
+}
+
+service EventService {
+  rpc Subscribe (stream TypeArg) returns (stream Data){};
+}
+
