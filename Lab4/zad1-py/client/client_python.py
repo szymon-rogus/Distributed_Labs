@@ -8,7 +8,6 @@ sys.path.insert(1, '../generated_python')
 from generated_python.events_pb2_grpc import EventsServiceStub
 from generated_python.events_pb2 import *
 
-
 def subscribe_some():
     type = input("Choose your subscribtion [TIME, DEVICE]: ")
     if type == "time":
@@ -39,7 +38,7 @@ def show_stream_messages(stub):
 def start():
     with grpc.insecure_channel('localhost:8080') as channel:
         stub = EventsServiceStub(channel)
-        print("-------------- events_listen --------------")
+        print("-------------- listen --------------")
         show_stream_messages(stub)
 
 start()
