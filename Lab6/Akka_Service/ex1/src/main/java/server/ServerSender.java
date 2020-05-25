@@ -10,7 +10,9 @@ import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import server.shop.Shop;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static akka.actor.SupervisorStrategy.restart;
 import static akka.actor.SupervisorStrategy.resume;
@@ -41,33 +43,27 @@ public class ServerSender extends AbstractActor {
                 .build();
     }
 
-    private void apply(String s) throws InterruptedException {
-        System.out.println(getSender().path());
+    private void apply(String product) throws InterruptedException {
         if (getSender().path().toString().equals(clientId)) {
 
-            String productName = s.trim();
-            AtomicInteger counter = new AtomicInteger();
-
-            Future<Object> p1 = ask(context().actorOf(Props.create(Shop.class)), s, Timeout.create(java.time.Duration.ofMillis(300)));
+            Future<Object> p1 = ask(context().actorOf(Props.create(Shop.class)), product, Timeout.create(java.time.Duration.ofMillis(300)));
             p1.onComplete(new OnComplete<Object>() {
                 @Override
                 public void onComplete(Throwable failure, Object success) {
                     if (failure == null) {
                         price1 = (int) success;
-                        counter.getAndIncrement();
                     } else {
                         price1 = null;
                     }
                 }
             }, getContext().getDispatcher());
 
-            Future<Object> p2 = ask(context().actorOf(Props.create(Shop.class)), s, Timeout.create(java.time.Duration.ofMillis(300)));
+            Future<Object> p2 = ask(context().actorOf(Props.create(Shop.class)), product, Timeout.create(java.time.Duration.ofMillis(300)));
             p2.onComplete(new OnComplete<Object>() {
                 @Override
                 public void onComplete(Throwable failure, Object success) {
                     if (failure == null) {
                         price1 = (int) success;
-                        counter.getAndIncrement();
                     } else {
                         price2 = null;
                     }
@@ -76,15 +72,21 @@ public class ServerSender extends AbstractActor {
 
             Thread.sleep(300);
 
-            if (price1 == null && price2 == null) {
-                getSender().tell("No price availabe!", getSelf());
-            } else if (price1 == null) {
-                getSender().tell(productName + "price: " + price2, getSelf());
-            } else if (price2 == null) {
-                getSender().tell(productName + "price: " + price1, getSelf());
-            } else {
-                getSender().tell(productName + "price: " + Integer.min(price1, price2), getSelf());
-            }
+            sendFoundPrice(product);
+        }
+    }
+
+    private void sendFoundPrice(String product) {
+
+        int minPrice = Stream.of(price1, price2)
+                .filter(Objects::nonNull)
+                .mapToInt(price -> price)
+                .max().orElse(-1);
+
+        if (minPrice == -1) {
+            getSender().tell("No price availabe!", getSelf());
+        } else {
+            getSender().tell(product + " price: " + minPrice, getSelf());
         }
     }
 }

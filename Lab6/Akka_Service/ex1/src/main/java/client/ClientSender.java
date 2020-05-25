@@ -13,13 +13,13 @@ public class ClientSender extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(String.class, s -> {
+                .match(String.class, product -> {
                     System.out.println(getSender().path());
                     if(getSender().path().toString().equals(clientId)) {
-                        getContext().actorSelection(serverId).tell(s, getSelf());
+                        getContext().actorSelection(serverId).tell(product, getSelf());
                     }
                     if(getSender().path().toString().equals(serverId)) {
-                        System.out.println(s);
+                        System.out.println(product);
                     }
                 })
                 .matchAny(o -> log.info("Product no available"))

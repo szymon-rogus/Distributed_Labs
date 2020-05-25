@@ -11,10 +11,7 @@ public class Shop extends AbstractActor{
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(String.class, s -> {
-                    if(ShopChecker.productList.contains(Products.valueOf(s.toUpperCase()))) {
-                        System.out.println("YAY!");
-                    }
+                .match(String.class, product -> {
                     Thread.sleep(ShopChecker.getCheckingTime());
                     int value = ShopChecker.getValueOfProduct();
                     getSender().tell(value, getSelf());
