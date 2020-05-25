@@ -21,18 +21,16 @@ public class ServerSender extends AbstractActor {
     Integer price1 = null;
     Integer price2 = null;
 
-    private final String clientId = "akka://local_system@127.0.0.1:2551/user/client_sender";
-    private final String shop1 = "akka://local_system/user/server_sender/shop1";
-    private final String shop2 = "akka://local_system/user/server_sender/shop2";
+    private final static String clientId = "akka://local_system@127.0.0.1:2551/user/client_sender";
 
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
     @Override
     public SupervisorStrategy supervisorStrategy() {
         return new OneForOneStrategy(10, Duration.create("1 minute"), DeciderBuilder
-                .match(ArithmeticException.class, e -> resume())
-                .matchAny(o -> restart()).
-                        build());
+                .match(IllegalArgumentException.class, e -> resume())
+                .matchAny(o -> restart())
+                .build());
     }
 
     @Override
@@ -53,7 +51,7 @@ public class ServerSender extends AbstractActor {
             Future<Object> p1 = ask(context().actorOf(Props.create(Shop.class)), s, Timeout.create(java.time.Duration.ofMillis(300)));
             p1.onComplete(new OnComplete<Object>() {
                 @Override
-                public void onComplete(Throwable failure, Object success) throws Throwable {
+                public void onComplete(Throwable failure, Object success) {
                     if (failure == null) {
                         price1 = (int) success;
                         counter.getAndIncrement();
@@ -66,7 +64,7 @@ public class ServerSender extends AbstractActor {
             Future<Object> p2 = ask(context().actorOf(Props.create(Shop.class)), s, Timeout.create(java.time.Duration.ofMillis(300)));
             p2.onComplete(new OnComplete<Object>() {
                 @Override
-                public void onComplete(Throwable failure, Object success) throws Throwable {
+                public void onComplete(Throwable failure, Object success) {
                     if (failure == null) {
                         price1 = (int) success;
                         counter.getAndIncrement();

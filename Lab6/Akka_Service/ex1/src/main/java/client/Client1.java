@@ -26,7 +26,7 @@ public class Client1 {
         final ActorSystem system = ActorSystem.create("local_system", config);
         final ActorRef sender = system.actorOf(Props.create(ClientSender.class), "client_sender");
 
-        logger.info("Availabe products");
+        logger.info("Available products");
         logger.info(Arrays.toString(Products.class.getEnumConstants()));
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -36,6 +36,7 @@ public class Client1 {
             if (line.equals("q")) {
                 break;
             }
+
             sender.tell(line, null);
         }
 
