@@ -12,9 +12,12 @@ public class Shop extends AbstractActor{
     public Receive createReceive() {
         return receiveBuilder()
                 .match(String.class, product -> {
-                    Thread.sleep(ShopChecker.getCheckingTime());
-                    int value = ShopChecker.getValueOfProduct();
-                    getSender().tell(value, getSelf());
+                    if(ShopChecker.productList.contains(Products.valueOf(product.toUpperCase()))) {
+                        Thread.sleep(ShopChecker.getCheckingTime());
+                        int value = ShopChecker.getValueOfProduct();
+                        getSender().tell(value, getSelf());
+                    }
+
                 })
                 .matchAny(o -> log.info("Product no available"))
                 .build();
